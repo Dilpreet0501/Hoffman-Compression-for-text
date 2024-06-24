@@ -4,7 +4,10 @@ const path = require('path');
 const { exec } = require('child_process');
 const fs = require('fs');
 const cors = require('cors');
-
+const connectDB = require('./db');
+const File = require('./models/file');
+const cloudinary = require("cloudinary").v2; 
+require("dotenv").config();
 const app = express();
 app.use(fileUpload());
 
@@ -15,11 +18,40 @@ const corsOptions = {
     allowedHeaders: ['Content-Type']
 };
 app.use(cors(corsOptions));
-
+connectDB();
+const port = process.env.PORT;
 const uploadDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
+
+cloudinary.config({ 
+    cloud_name: process.env.NAME, 
+    api_key: process.env.API_KEY, 
+    api_secret: process.env.SECRET_KEY, 
+}); 
+const uploadOnCloudinary = async (localFilePath) =>{
+    try {
+     //uploading file to cloudinary 
+      if(!localFilePath){
+         console.log('file path not found');
+         return null ;
+         
+      }
+      const response = await cloudinary.uploader.upload(localFilePath,{
+         resource_type:'auto'
+      })
+     
+    
+    fs.unlinkSync(localFilePath)
+      return response;
+ 
+    } catch (error) {
+      console.log('cloudinary error : ',error);
+      return null;
+    }
+ }
+
 
 const cppDir = path.join(__dirname, '..', 'cpp');
 
@@ -32,9 +64,12 @@ app.post('/compress', async (req, res) => {
         }
 
         const file = req.files.file;
-        const uploadPath = path.join(uploadDir, file.name);
-        await file.mv(uploadPath);
+        
+        const newFileName= `${Date.now()}_${file.name}`
+        const uploadPath = path.join(uploadDir, newFileName);
 
+        await file.mv(uploadPath);
+     
         const outputPath = uploadPath.replace('.txt', '_compressed.txt');
         const execPath = path.join(cppDir, 'huffman.exe');
         const compressCommand = `"${execPath}" "${uploadPath}"`;
@@ -44,6 +79,7 @@ app.post('/compress', async (req, res) => {
                 console.error(`Compression Error: ${stderr}`);
                 return res.status(500).send('Compression failed.');
             }
+
    res.json({ success: true, downloadUrl: `/uploads/${path.basename(outputPath)}` });
             });
         
@@ -62,13 +98,17 @@ app.post('/decompress', async (req, res) => {
         }
 
         const file = req.files.file;
-        const uploadPath = path.join(uploadDir, file.name);
-        await file.mv(uploadPath);
+        const fileName = file.name;
+        // await file.mv(uploadPath);
 
-        const outputPath = uploadPath.replace('.txt', '_decompressed.txt');
-        
+        const output = fileName.replace('.txt', '_decompressed.txt');
+        const decompressedFile = await File.findOne({ fileName: output });
 
-    res.json({ success: true, downloadUrl: `/uploads/${path.basename(outputPath)}` });
+        if (!decompressedFile) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+
+    res.json({ success: true, downloadUrl: decompressedFile.secureUrl });
   
       
     } catch (error) {
@@ -86,12 +126,14 @@ app.post('/img', async (req, res) => {
         }
 
         const file = req.files.file;
-        const uploadPath = path.join(uploadDir, file.name);
+       
+        const newFileName= `${Date.now()}_${file.name}`
+        const uploadPath = path.join(uploadDir, newFileName);
         await file.mv(uploadPath);
 
         const outputPath = uploadPath.replace('.bmp', '_compressed.bmp');
         const execPath = path.join(pyDir, 'image_compressor.py');
-        const compressedFilePath = uploadPath.replace('.bmp', '.bin');
+        const compressedFilePath = uploadPath.replace('.bmp', '_compressed.txt');
         const command = `python "${execPath}" "${uploadPath}" "${compressedFilePath}" "${outputPath}"`;
 
         exec(command, (error, stdout, stderr) => {
@@ -99,7 +141,8 @@ app.post('/img', async (req, res) => {
                 console.error(`Image Compression Error: ${stderr}`);
                 return res.status(500).send('Compression failed.');
             }
-            res.json({ success: true, binUrl: `/uploads/${path.basename(compressedFilePath)}`, downloadImgUrl: `/uploads/${path.basename(outputPath)}` });
+            res.json({ success: true, downloadImgUrl: `/uploads/${path.basename(outputPath)}` });
+          
         });
     } catch (error) {
         console.error(`Internal Server Error: ${error}`);
@@ -115,11 +158,29 @@ app.get('/uploads/:fileName', (req, res) => {
             console.error(`Download Error: ${err}`);
             res.status(500).send('Download failed.');
         }
+    
     });
+
 });
+app.get('/reload',async(req,res)=>{
+    const files = fs.readdirSync(uploadDir);
+
+    for (const file of files) {
+        const filePath = path.join(uploadDir, file);
+        const res=  await uploadOnCloudinary(filePath);
+        if(res)
+       {const newFile = new File({
+            fileName: file,
+            secureUrl: res.secure_url,
+          });
+       await newFile.save();}
+        }
+        res.json({ success: true });
+})
 app.use('/uploads', express.static(uploadDir));
 
-const PORT = 3001;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
+

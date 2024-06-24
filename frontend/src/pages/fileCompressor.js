@@ -61,7 +61,7 @@ const FileCompressor = () => {
     
 
       if (success) {
-        setDownloadUrl(`http://localhost:3001${downloadUrl}`);
+        setDownloadUrl(`${downloadUrl}`);
         alert('Decompressed Successfully. Kindly click the download button for download');
       } else {
         alert('Decompression failed.');

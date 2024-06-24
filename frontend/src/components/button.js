@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FaCompress, FaExpand } from 'react-icons/fa';
-
+import axios from 'axios';
+import Loader from './loader';
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -32,11 +33,26 @@ const ActionButton = styled.button`
 
 
 const ActionButtons = ({ onCompress, onDecompress, downloadUrl }) => {
+  const[isLoading, setIsLoading]=useState(false);
   const handleDownload = () => {
     if (downloadUrl) {
       window.location.href = downloadUrl; 
     }
   };
+  const reload=async()=>{
+    setIsLoading(true);
+   await axios.get('http://localhost:3001/reload').then ((res)=>{
+      const {success}= res.data;
+
+   if (success) {
+    setIsLoading(false);
+    window.location.reload();
+    
+  }
+  else {
+    console.log("Upload failed")
+  }
+  })};
   return (
     <ButtonContainer>
      
@@ -50,10 +66,11 @@ const ActionButtons = ({ onCompress, onDecompress, downloadUrl }) => {
       </ActionButton>
       {downloadUrl && (
         <>
+        <Loader isLoading={isLoading}/>
         <ActionButton onClick={handleDownload}>
           Download File
         </ActionButton>
-        <ActionButton onClick={()=>window.location.reload()}>
+        <ActionButton onClick={reload}>
           Reload to start again
         </ActionButton>
         </>

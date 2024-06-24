@@ -74,7 +74,6 @@ const ActionButton = styled.button`
 const ImageCompressor = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [downloadImgUrl, setDownloadImgUrl] = useState('');
-  const [binUrl, setBinUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const handleChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -91,10 +90,10 @@ const ImageCompressor = () => {
 
     setIsLoading(true);
        await axios.post('http://localhost:3001/img', formData).then ((res)=>{
-         const {success,binUrl,downloadImgUrl}= res.data;
+         const {success,downloadImgUrl}= res.data;
 
       if (success) {
-        setBinUrl(`http://localhost:3001${binUrl}`)
+        
         setDownloadImgUrl(`http://localhost:3001${downloadImgUrl}`);
         alert('Compressed Successfully. Kindly click the download button for download');
       } else {
@@ -102,7 +101,21 @@ const ImageCompressor = () => {
       }
       setIsLoading(false);
     }) 
+    
   };
+  const reload=async()=>{
+    setIsLoading(true);
+    await axios.get('http://localhost:3001/reload').then ((res)=>{
+       const {success}= res.data;
+       setIsLoading(false);
+    if (success) {
+       window.location.reload();
+  
+   }
+   else {
+     console.log("Upload failed")
+   }
+   })};
   return (
     <PageContainer>
       <Loader isLoading={isLoading}/>
@@ -122,12 +135,10 @@ const ImageCompressor = () => {
       </ActionButton>
      
       {downloadImgUrl && (
-        <><ActionButton as='a' href={binUrl} download>
-            Download Bin File
-          </ActionButton><ActionButton as='a' href={downloadImgUrl} download>
+        <><ActionButton as='a' href={downloadImgUrl} download>
               Download Commpressed Image
             </ActionButton>
-            <ActionButton onClick={()=>window.location.reload()}>
+            <ActionButton onClick={reload}>
           Reload to start again
         </ActionButton></>
 
