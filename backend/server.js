@@ -13,7 +13,7 @@ app.use(fileUpload());
 
 // CORS configuration
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: 'https://file-compressor-za2s.onrender.com',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 };
