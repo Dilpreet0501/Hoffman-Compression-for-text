@@ -19,7 +19,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 connectDB();
-const port = process.env.PORT;
+const port = process.env.PORT || 3001; 
 const uploadDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
