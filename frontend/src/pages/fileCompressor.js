@@ -34,11 +34,11 @@ const FileCompressor = () => {
     formData.append('file', selectedFile);
 
     setIsLoading(true);
-       await axios.post('http://localhost:3001/compress', formData).then ((res)=>{
+       await axios.post('https://file-compression-backend.onrender.com/compress', formData).then ((res)=>{
          const {success,downloadUrl}= res.data;
 
       if (success) {
-        setDownloadUrl(`http://localhost:3001${downloadUrl}`);
+        setDownloadUrl(`https://file-compression-backend.onrender.com${downloadUrl}`);
         alert('Compressed Successfully. Kindly click the download button for download');
       } else {
         alert('Compression failed.');
@@ -56,7 +56,7 @@ const FileCompressor = () => {
     const formData = new FormData();
     formData.append('file', selectedFile);
     setIsLoading(true);
-    await axios.post('http://localhost:3001/decompress', formData).then((res)=>{
+    await axios.post('https://file-compression-backend.onrender.com/decompress', formData).then((res)=>{
       const {success,downloadUrl}= res.data;
     
 

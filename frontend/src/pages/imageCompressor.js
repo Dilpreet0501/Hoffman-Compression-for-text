@@ -89,12 +89,12 @@ const ImageCompressor = () => {
     formData.append('file', selectedFile);
 
     setIsLoading(true);
-       await axios.post('http://localhost:3001/img', formData).then ((res)=>{
+       await axios.post('https://file-compression-backend.onrender.com/img', formData).then ((res)=>{
          const {success,downloadImgUrl}= res.data;
 
       if (success) {
         
-        setDownloadImgUrl(`http://localhost:3001${downloadImgUrl}`);
+        setDownloadImgUrl(`https://file-compression-backend.onrender.com${downloadImgUrl}`);
         alert('Compressed Successfully. Kindly click the download button for download');
       } else {
         alert('Compression failed.');
@@ -105,7 +105,7 @@ const ImageCompressor = () => {
   };
   const reload=async()=>{
     setIsLoading(true);
-    await axios.get('http://localhost:3001/reload').then ((res)=>{
+    await axios.get('https://file-compression-backend.onrender.com/reload').then ((res)=>{
        const {success}= res.data;
        setIsLoading(false);
     if (success) {
