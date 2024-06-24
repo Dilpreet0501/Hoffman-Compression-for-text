@@ -179,7 +179,6 @@ app.get('/reload',async(req,res)=>{
 })
 app.use('/uploads', express.static(uploadDir));
 
-
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
