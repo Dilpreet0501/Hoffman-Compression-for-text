@@ -20,7 +20,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 connectDB();
 const port = process.env.PORT || 3001; 
-const uploadDir = path.join(__dirname, '..', 'uploads');
+const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
@@ -53,7 +53,7 @@ const uploadOnCloudinary = async (localFilePath) =>{
  }
 
 
-const cppDir = path.join(__dirname, '..', 'cpp');
+const cppDir = path.join(__dirname, 'cpp');
 
 // Compress Endpoint
 app.post('/compress', async (req, res) => {
@@ -118,7 +118,7 @@ app.post('/decompress', async (req, res) => {
 });
 
 // Image Compression Endpoint
-const pyDir = path.join(__dirname, '..', 'python');
+const pyDir = path.join(__dirname, 'python');
 app.post('/img', async (req, res) => {
     try {
         if (!req.files || Object.keys(req.files).length === 0) {
