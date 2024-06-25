@@ -41,7 +41,7 @@ const ActionButtons = ({ onCompress, onDecompress, downloadUrl }) => {
   };
   const reload=async()=>{
     setIsLoading(true);
-   await axios.get('https://file-compressor-backend-m3k1.onrender.com/reload').then ((res)=>{
+   await axios.get('http://localhost:3001/reload').then ((res)=>{
       const {success}= res.data;
 
    if (success) {
