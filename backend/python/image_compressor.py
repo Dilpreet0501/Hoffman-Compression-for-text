@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 from copy import deepcopy as cp
-
-
+import sys
+from bitstring import BitArray
 class Node:
     def __init__(self, f, p, isLeaf=0):
         self.freq = f          # For storing intensity
@@ -160,7 +160,7 @@ class Image:
         #  Our self.encodedString is just list of strigs with characters char('0') & char('1')
         # but we should not directly write char('0') and char('1') , because each of them take 1byte = 8bits, so we are converting the char('0') and char('1') to binary(0) & binary(1)
         # To do the above work we are using bitstring from BitArray library
-        from bitstring import BitArray
+        
         file = open(path, 'wb')
         obj = BitArray(bin=self.encodedString)
         obj.tofile(file)
@@ -276,7 +276,7 @@ class Image:
       
 
 if __name__ == "__main__":
-    import sys
+    
     input_path = sys.argv[1]
     compressed_path = sys.argv[2]
     output_path = sys.argv[3]
