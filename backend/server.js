@@ -13,7 +13,7 @@ app.use(fileUpload());
 
 // CORS configuration
 const corsOptions = {
-    origin: 'https://667f1d258770a693d6ec83c7--deft-custard-d7ba3f.netlify.app/',
+    origin: 'https://deft-custard-d7ba3f.netlify.app',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 };
