@@ -13,7 +13,7 @@ app.use(fileUpload());
 
 // CORS configuration
 const corsOptions = {
-    origin: 'https://deft-custard-d7ba3f.netlify.app',
+    origin: 'https://hoffman-compression.vercel.app/',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 };
