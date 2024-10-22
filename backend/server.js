@@ -118,50 +118,50 @@ app.post('/decompress', async (req, res) => {
 });
 
 // Image Compression Endpoint
-const pyDir = path.join(__dirname, 'python');
-app.post('/img', async (req, res) => {
-    try {
-        if (!req.files || Object.keys(req.files).length === 0) {
-            return res.status(400).send('No files were uploaded.');
-        }
+// const pyDir = path.join(__dirname, 'python');
+// app.post('/img', async (req, res) => {
+//     try {
+//         if (!req.files || Object.keys(req.files).length === 0) {
+//             return res.status(400).send('No files were uploaded.');
+//         }
 
-        const file = req.files.file;
+//         const file = req.files.file;
        
-        const newFileName= `${Date.now()}_${file.name}`
-        const uploadPath = path.join(uploadDir, newFileName);
-        await file.mv(uploadPath);
+//         const newFileName= `${Date.now()}_${file.name}`
+//         const uploadPath = path.join(uploadDir, newFileName);
+//         await file.mv(uploadPath);
 
-        const outputPath = uploadPath.replace('.bmp', '_compressed.bmp');
-        const execPath = path.join(pyDir, 'image_compressor.py');
-        const compressedFilePath = uploadPath.replace('.bmp', '_compressed.txt');
-        const command = `python "${execPath}" "${uploadPath}" "${compressedFilePath}" "${outputPath}"`;
+//         const outputPath = uploadPath.replace('.bmp', '_compressed.bmp');
+//         const execPath = path.join(pyDir, 'image_compressor.py');
+//         const compressedFilePath = uploadPath.replace('.bmp', '_compressed.txt');
+//         const command = `python "${execPath}" "${uploadPath}" "${compressedFilePath}" "${outputPath}"`;
 
-        exec(command, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Image Compression Error: ${stderr}`);
-                return res.status(500).send('Compression failed.');
-            }
-            res.json({ success: true, downloadImgUrl: `/uploads/${path.basename(outputPath)}` });
+//         exec(command, (error, stdout, stderr) => {
+//             if (error) {
+//                 console.error(`Image Compression Error: ${stderr}`);
+//                 return res.status(500).send('Compression failed.');
+//             }
+//             res.json({ success: true, downloadImgUrl: `/uploads/${path.basename(outputPath)}` });
           
-        });
-    } catch (error) {
-        console.error(`Internal Server Error: ${error}`);
-        res.status(500).send('Internal server error.');
-    }
-});
+//         });
+//     } catch (error) {
+//         console.error(`Internal Server Error: ${error}`);
+//         res.status(500).send('Internal server error.');
+//     }
+// });
 
-app.get('/uploads/:fileName', (req, res) => {
-    const fileName = req.params.fileName;
-    const filePath = path.join(uploadDir, fileName);
-    res.download(filePath, (err) => {
-        if (err) {
-            console.error(`Download Error: ${err}`);
-            res.status(500).send('Download failed.');
-        }
+// app.get('/uploads/:fileName', (req, res) => {
+//     const fileName = req.params.fileName;
+//     const filePath = path.join(uploadDir, fileName);
+//     res.download(filePath, (err) => {
+//         if (err) {
+//             console.error(`Download Error: ${err}`);
+//             res.status(500).send('Download failed.');
+//         }
     
-    });
+//     });
 
-});
+// });
 app.get('/reload',async(req,res)=>{
     const files = fs.readdirSync(uploadDir);
 

@@ -59,12 +59,12 @@ const Home = () => {
           </IconContainer>
           File Compressor
         </OptionCard>
-        <OptionCard to="/image-compressor">
+        {/* <OptionCard to="/image-compressor">
           <IconContainer>
             <FaImage size={50} />
           </IconContainer>
           Image Compressor
-        </OptionCard>
+        </OptionCard> */}
       </OptionsContainer>
     </HomeContainer>
   );
