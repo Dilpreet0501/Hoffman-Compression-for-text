@@ -2,8 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import FileCompressor from './pages/fileCompressor';
-// import ImageCompressor from './pages/imageCompressor';
-import Home from './pages/home';
+
 
 const NavBar = styled.nav`
   display: flex;
@@ -25,14 +24,14 @@ const App = () => {
   return (
     <Router>
       <NavBar>
-        <NavLink to="/">Home</NavLink>
-        <NavLink to="/file-compressor">File Compressor</NavLink>
-        {/* <NavLink to="/image-compressor">Image Compressor</NavLink> */}
+        
+        <NavLink to="/">File Compressor</NavLink>
+       
       </NavBar>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/file-compressor" element={<FileCompressor />} />
-        {/* <Route path="/image-compressor" element={<ImageCompressor />} /> */}
+        
+        <Route path="/" element={<FileCompressor />} />
+       
       </Routes>
     </Router>
   );
