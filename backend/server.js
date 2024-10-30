@@ -13,7 +13,7 @@ app.use(fileUpload());
 
 // CORS configuration
 const corsOptions = {
-    origin: 'https://hoffman-compression.vercel.app',
+    origin: 'https://text-compressor.vercel.app/',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 };
