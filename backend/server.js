@@ -8,6 +8,7 @@ const connectDB = require('./db');
 const File = require('./models/file');
 const cloudinary = require("cloudinary").v2; 
 require("dotenv").config();
+
 const app = express();
 app.use(fileUpload());
 
@@ -30,28 +31,26 @@ cloudinary.config({
     api_key: process.env.API_KEY, 
     api_secret: process.env.SECRET_KEY, 
 }); 
-const uploadOnCloudinary = async (localFilePath) =>{
-    try {
-     //uploading file to cloudinary 
-      if(!localFilePath){
-         console.log('file path not found');
-         return null ;
-         
-      }
-      const response = await cloudinary.uploader.upload(localFilePath,{
-         resource_type:'auto'
-      })
-     
-    
-    fs.unlinkSync(localFilePath)
-      return response;
- 
-    } catch (error) {
-      console.log('cloudinary error : ',error);
-      return null;
-    }
- }
 
+const uploadOnCloudinary = async (localFilePath) => {
+    try {
+        if (!localFilePath) {
+            console.log('File path not found');
+            return null;
+        }
+
+        const response = await cloudinary.uploader.upload(localFilePath, {
+            resource_type: 'auto'
+        });
+
+        fs.unlinkSync(localFilePath);
+        return response;
+
+    } catch (error) {
+        console.log('Cloudinary error:', error);
+        return null;
+    }
+};
 
 const cppDir = path.join(__dirname, 'cpp');
 
@@ -64,13 +63,12 @@ app.post('/compress', async (req, res) => {
         }
 
         const file = req.files.file;
-        
-        const newFileName= `${Date.now()}_${file.name}`
+        const newFileName = `${Date.now()}_${file.name}`;
         const uploadPath = path.join(uploadDir, newFileName);
 
         await file.mv(uploadPath);
-     
-        const outputPath = uploadPath.replace('.txt', '_compressed.txt');
+
+        const outputPath = uploadPath.replace('.txt', '_compressed.bin');
         const execPath = path.join(cppDir, 'huffman.exe');
         const compressCommand = `"${execPath}" "${uploadPath}"`;
 
@@ -80,9 +78,9 @@ app.post('/compress', async (req, res) => {
                 return res.status(500).send('Compression failed.');
             }
 
-   res.json({ success: true, downloadUrl: `/uploads/${path.basename(outputPath)}` });
-            });
-        
+            res.json({ success: true, downloadUrl: `/uploads/${path.basename(outputPath)}` });
+        });
+
     } catch (error) {
         console.error(`Internal Server Error: ${error}`);
         res.status(500).send('Internal server error.');
@@ -99,25 +97,20 @@ app.post('/decompress', async (req, res) => {
 
         const file = req.files.file;
         const fileName = file.name;
-        // await file.mv(uploadPath);
-
-        const output = fileName.replace('.txt', '_decompressed.txt');
+        const output = fileName.replace('.bin', '_decompressed.txt');
         const decompressedFile = await File.findOne({ fileName: output });
 
         if (!decompressedFile) {
             return res.status(404).json({ message: 'File not found' });
         }
 
-    res.json({ success: true, downloadUrl: decompressedFile.secureUrl });
-  
-      
+        res.json({ success: true, downloadUrl: decompressedFile.secureUrl });
+
     } catch (error) {
         console.error(`Internal Server Error: ${error}`);
         res.status(500).send('Internal server error.');
     }
 });
-
-
 
 app.get('/uploads/:fileName', (req, res) => {
     const fileName = req.params.fileName;
@@ -127,28 +120,45 @@ app.get('/uploads/:fileName', (req, res) => {
             console.error(`Download Error: ${err}`);
             res.status(500).send('Download failed.');
         }
-    
     });
-
 });
-app.get('/reload',async(req,res)=>{
-    const files = fs.readdirSync(uploadDir);
 
-    for (const file of files) {
-        const filePath = path.join(uploadDir, file);
-        const res=  await uploadOnCloudinary(filePath);
-        if(res)
-       {const newFile = new File({
-            fileName: file,
-            secureUrl: res.secure_url,
-          });
-       await newFile.save();}
+app.get('/reload', async (req, res) => {
+    try {
+        const files = fs.readdirSync(uploadDir);
+
+        for (const file of files) {
+            const filePath = path.join(uploadDir, file);
+
+            if (file.endsWith('.bin')) {
+                
+                fs.unlinkSync(filePath);
+                // console.log(`Deleted file: ${filePath}`);
+            } else {
+               
+                const response = await uploadOnCloudinary(filePath);
+
+                if (response) {
+                    const newFile = new File({
+                        fileName: file,
+                        secureUrl: response.secure_url,
+                    });
+                    await newFile.save();
+                }
+            }
         }
+
         res.json({ success: true });
-})
+    } catch (error) {
+        console.error(`Reload Error: ${error}`);
+        res.status(500).send('Reload failed.');
+    }
+});
+
 app.use('/uploads', express.static(uploadDir));
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+
 

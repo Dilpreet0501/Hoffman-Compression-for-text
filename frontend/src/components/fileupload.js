@@ -41,7 +41,7 @@ const FileUpload = ({selectedFile,handleChange}) => {
     <UploadContainer>
       <FaUpload size={50} color="#4a90e2" />
       <UploadLabel>
-        <input type="file" accept=".txt" onChange={handleChange} />
+        <input type="file" accept=".txt,.bin" onChange={handleChange} />
         Choose File
       </UploadLabel>
       {selectedFile && <p>Selected File: {selectedFile.name}</p>}

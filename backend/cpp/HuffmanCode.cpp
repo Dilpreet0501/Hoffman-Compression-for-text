@@ -140,7 +140,7 @@ public:
         string paddedText = buildPaddedText(encodedText);
         vector<unsigned char> byteArray = buildByteArray(paddedText);
 
-        string outputPath = path.substr(0, path.find_last_of('.')) + "_compressed.txt";
+        string outputPath = path.substr(0, path.find_last_of('.')) + "_compressed.bin";
         ofstream output(outputPath, ios::binary);
         output.write(reinterpret_cast<char*>(byteArray.data()), byteArray.size());
         output.close();
